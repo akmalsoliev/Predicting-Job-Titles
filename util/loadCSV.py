@@ -9,9 +9,8 @@ class DataSet:
     def __load_ds__(self, ds)->pd.DataFrame:
         return pd.read_csv(ds)
     def drop_cols(self):
-        drop_cols = self.df.columns.str.contains("Unnamed")
+        drop_cols = [col for col in self.df.columns if "Unnamed" in col]
         self.df.drop(columns=drop_cols, inplace=True)
     def extract(self):
         self.df.to_parquet(self.ds.replace("csv", "parque"))
-
 
