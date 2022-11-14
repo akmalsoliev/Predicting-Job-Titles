@@ -1,6 +1,6 @@
 from typing import List
-import re 
-import numpy as np 
+import numpy as np
+from numpy.typing import NDArray 
 import pandas as pd 
 
 
@@ -25,17 +25,32 @@ class Preprocessing:
         Tokenize specified column. 
         inplace param will be utilized to remove the specified column
         """
-        full_array = self.df[column].to_numpy()
-        tokenized_text = self.__text_clean_func__(full_array)
+        full_array:NDArray = self.df[column].to_numpy()
+        tokenized_text:List[str] = self.__text_clean_func__(full_array)
+        unique, counts = np.unique(
+                np.hstack(tokenized_text), 
+                return_counts=True
+                )
 
-        # This is still broken!!!!
-        final_out = []
-        for col in tokenized_text:
-            final_out.append(pd.get_dummies(pd.Series(col)))
-        token_dummies_df = pd.concat(final_out, axis=1)
+        # Constructing top 20 of the most common elements in the list
+        top_20:List[str]= (
+                pd.Series(counts, index=unique)
+                .sort_values(ascending=False)
+                .head(20)
+                .index
+                .to_list()
+                )
 
-        if inplace:
-            # self.df.drop(columns=[column], inplace=True)
-            self.df = pd.concat([self.df, token_dummies_df], axis=1)
+        # Remove elements that are not top 20 list
+        for row in range(len(tokenized_text)):
+            tokenized_text[row] = np.unique(tokenized_text[row])
+            for index in range(len(tokenized_text[row])):
+                if tokenized_text[row][index] not in top_20:
+                    np.delete(tokenized_text[row], index)
 
-        return token_dummies_df
+        # if inplace:
+        #     # self.df.drop(columns=[column], inplace=True)
+        #     self.df = pd.concat([self.df, token_dummies_df], axis=1)
+
+        # return token_dummies_df
+
