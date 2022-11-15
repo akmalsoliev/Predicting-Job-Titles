@@ -5,17 +5,16 @@ import pandas as pd
 
 
 class Preprocessing:
-    def __init__(self, df:pd.DataFrame) -> None:
+    def __init__(self, df:pd.DataFrame, column:str) -> None:
         self.df = df
-        
-    def fill_missing_NA(self, column:str):
-        self.df[column].fillna("missing")
+        self.column = column
+        self.col_array: NDArray = self.df[self.column].to_numpy()
 
-    def text_clean_func(self, array_:Union[NDArray, List], sep:str="|") -> List[List[str]]:
+    def text_split(self, array_:Union[NDArray, List], sep:str="|") -> List[List[str]]:
         "This method is independent, because not all columns require such action"
         array_split:List[List[str]] = []
         for val in array_:
-            split_list:List[str] = [text.lower().strip() for text in val.split("|")]
+            split_list:List[str] = [text.lower().strip() for text in val.split(sep)]
             array_split.append(split_list)
         return array_split
         
@@ -46,6 +45,7 @@ class Preprocessing:
 
         return array_
 
+    # This needs a complete reconstruction
     def tokenize(self, column:str, inplace:bool):
         """
         Tokenize specified column. 
@@ -54,7 +54,6 @@ class Preprocessing:
         full_array:NDArray[np.string_] = self.df[column].to_numpy()
         
         # Notes: Need to figure an architecture here
-        array_:List[str] = self.__text_clean_func__(full_array)
         # if inplace:
         #     # self.df.drop(columns=[column], inplace=True)
         #     self.df = pd.concat([self.df, token_dummies_df], axis=1)
