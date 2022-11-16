@@ -1,4 +1,5 @@
 from typing import List, Union
+import math
 import numpy as np
 from numpy.typing import NDArray 
 import pandas as pd 
@@ -52,21 +53,33 @@ class Preprocessing:
                 add_amount:int = max_len - len(list_)
                 list_.extend([np.nan]*add_amount)
 
-    def onehotencode(self):
-         self.__enforce_shape__()
-         array_conv:NDArray = np.array(self.col_array)
-         if array_conv.ndim > 1:
-             z_array: NDArray[np.float64] = np.zeros(shape=array_conv.shape)
-             # Column needs to be fixed with unique!!!
-             unique: NDArray[np.str_] = np.unique(np.hstack(array_conv))
-             
-             row, col = array_conv.shape
-             for row in range(row+1):
-                 for col in range(col):
-                    val = array_conv[row][col]
-                    index:NDArray[np.intc] = np.where(val in unique)[0]
-                    assert len(index) == 1, "Should not be more than one element"
-                    z_array[row][index] = 1
-             print(z_array.shape)
-             print(unique.shape)
-             print(pd.DataFrame(z_array, columns=unique))
+    def onehotencode(self, inplace:bool=True):
+        self.__enforce_shape__()
+        array_conv:NDArray = np.array(self.col_array)
+        
+        if array_conv.ndim > 1:
+            # Column needs to be fixed with unique!!!
+            if self.top_x:
+                unique = self.top_x
+            else:
+                unique: NDArray[np.str_] = np.unique(np.hstack(array_conv))
+
+            row, col = array_conv.shape
+            unique_col = len(unique)
+            z_array: NDArray[np.float64] = np.zeros(shape=(row, unique_col))
+
+            for row, list_ in enumerate(array_conv):
+                for col, val in enumerate(list_):
+                    val = val.lower().strip()
+                    if str(val) != "nan": 
+                        index:NDArray[np.intc] = np.where(np.array(unique) == val)[0]
+                        assert len(index) <= 1, "Should not be more than one element"
+                        z_array[row][index] = 1
+            ohe_df: pd.DataFrame = pd.DataFrame(z_array, columns=unique)
+
+        elif array_conv.ndim < 1:
+            ohe_df = pd.get_dummies(self.df[self.column])
+
+        if inplace:
+            self.df.drop(columns=[self.column], inplace=True)
+        self.df: pd.DataFrame = pd.concat([self.df, ohe_df], axis=1)
