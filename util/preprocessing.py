@@ -8,28 +8,28 @@ class Preprocessing:
     def __init__(self, df:pd.DataFrame, column:str) -> None:
         self.df = df
         self.column = column
-        self.col_array: NDArray = self.df[self.column].to_numpy()
+        self.col_array = self.df[self.column].to_numpy()
 
-    def text_split(self, array_:Union[NDArray, List], sep:str="|") -> List[List[str]]:
+    def text_split(self, sep:str="|"): 
         "This method is independent, because not all columns require such action"
-        array_split:List[List[str]] = []
-        for val in array_:
+        array_:List[List[str|float]] = []
+        for val in self.col_array:
             split_list:List[str] = [text.lower().strip() for text in val.split(sep)]
-            array_split.append(split_list)
-        return array_split
+            array_.append(split_list)
+        self.col_array = array_
         
-    def top_x_vals(self, array_:List[List[str]], top_vals:int=20):
+    def top_x_vals(self, top_vals:int=20):
         """
         This function will return the processed matrix with elements
         that are in top X occurance.
         """
         unique, counts = np.unique(
-                np.hstack(array_), 
+                np.hstack(self.col_array), 
                 return_counts=True
                 )
 
-        # Constructing top 20 of the most common elements in the matrix
-        top_x:List[str]= (
+        # Constructing top X of the most common elements in the matrix
+        self.top_x:List[str]= (
                 pd.Series(counts, index=unique)
                 .sort_values(ascending=False)
                 .head(top_vals)
@@ -38,25 +38,35 @@ class Preprocessing:
                 )
 
         # Remove elements that are not top 20 matrix
-        for row in range(len(array_)):
-            for index in range(len(array_[row])):
-                if array_[row][index] not in top_x:
-                    np.delete(array_[row], index)
+        for row in range(len(self.col_array)):
+            for index in range(len(self.col_array[row])):
+                if self.col_array[row][index] not in self.top_x:
+                    np.delete(self.col_array[row], index)
 
-        return array_
+        return self.col_array
 
-    # This needs a complete reconstruction
-    def tokenize(self, column:str, inplace:bool):
-        """
-        Tokenize specified column. 
-        inplace param will be utilized to remove the specified column
-        """
-        full_array:NDArray[np.string_] = self.df[column].to_numpy()
-        
-        # Notes: Need to figure an architecture here
-        # if inplace:
-        #     # self.df.drop(columns=[column], inplace=True)
-        #     self.df = pd.concat([self.df, token_dummies_df], axis=1)
+    def __enforce_shape__(self): 
+        max_len: int = max(len(lst) for lst in self.col_array)
+        for list_ in self.col_array:
+            if len(list_) < max_len:
+                add_amount:int = max_len - len(list_)
+                list_.extend([np.nan]*add_amount)
 
-        # return token_dummies_df
-
+    def onehotencode(self):
+         self.__enforce_shape__()
+         array_conv:NDArray = np.array(self.col_array)
+         if array_conv.ndim > 1:
+             z_array: NDArray[np.float64] = np.zeros(shape=array_conv.shape)
+             # Column needs to be fixed with unique!!!
+             unique: NDArray[np.str_] = np.unique(np.hstack(array_conv))
+             
+             row, col = array_conv.shape
+             for row in range(row+1):
+                 for col in range(col):
+                    val = array_conv[row][col]
+                    index:NDArray[np.intc] = np.where(val in unique)[0]
+                    assert len(index) == 1, "Should not be more than one element"
+                    z_array[row][index] = 1
+             print(z_array.shape)
+             print(unique.shape)
+             print(pd.DataFrame(z_array, columns=unique))
