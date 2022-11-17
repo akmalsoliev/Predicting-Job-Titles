@@ -5,7 +5,7 @@ from numpy.typing import NDArray
 import pandas as pd 
 
 
-class Preprocessing:
+class OneHotEncode:
     def __init__(self, df:pd.DataFrame, column:str) -> None:
         self.df = df
         self.column = column
@@ -53,7 +53,7 @@ class Preprocessing:
                 add_amount:int = max_len - len(list_)
                 list_.extend([np.nan]*add_amount)
 
-    def onehotencode(self, inplace:bool=True):
+    def encode(self, inplace:bool=True):
         self.__enforce_shape__()
         array_conv:NDArray = np.array(self.col_array)
         
