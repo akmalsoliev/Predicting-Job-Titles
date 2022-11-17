@@ -23,6 +23,7 @@ class OneHotEncode:
         """
         This function will return the processed matrix with elements
         that are in top X occurance.
+        Note this is for matrix, not for 1D Array.
         """
         unique, counts = np.unique(
                 np.hstack(self.col_array), 
@@ -54,11 +55,10 @@ class OneHotEncode:
                 list_.extend([np.nan]*add_amount)
 
     def encode(self, inplace:bool=True):
-        self.__enforce_shape__()
-        array_conv:NDArray = np.array(self.col_array)
-        
-        if array_conv.ndim > 1:
-            # Column needs to be fixed with unique!!!
+        if isinstance(self.col_array, list):
+            self.__enforce_shape__()
+            array_conv:NDArray = np.array(self.col_array)
+
             if self.top_x:
                 unique = self.top_x
             else:
@@ -75,11 +75,14 @@ class OneHotEncode:
                         index:NDArray[np.intc] = np.where(np.array(unique) == val)[0]
                         assert len(index) <= 1, "Should not be more than one element"
                         z_array[row][index] = 1
-            ohe_df: pd.DataFrame = pd.DataFrame(z_array, columns=unique)
 
-        elif array_conv.ndim < 1:
-            ohe_df = pd.get_dummies(self.df[self.column])
+            ohe_col_names = ["{}_{}".format(self.column, u_col) for u_col in unique]
+            ohe_df: pd.DataFrame = pd.DataFrame(z_array, columns=ohe_col_names)
+
+        else:
+           ohe_df = pd.get_dummies(self.df[self.column], prefix=self.column)
 
         if inplace:
-            self.df.drop(columns=[self.column], inplace=True)
+            self.df.drop(self.column, axis=1, inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
         self.df: pd.DataFrame = pd.concat([self.df, ohe_df], axis=1)
