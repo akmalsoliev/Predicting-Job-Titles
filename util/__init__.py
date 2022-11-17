@@ -1,3 +1,2 @@
-from util.loadCSV import DataSet
-from util.EDA import eda_report
-from util.preprocessing import Preprocessing
+from .loadCSV import DataSet
+from .EDA import eda_report
