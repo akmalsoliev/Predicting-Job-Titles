@@ -1,6 +1,4 @@
-from util.loadCSV import DataSet
 import sweetviz as sv
-
 
 def eda_report(df):
     report = sv.analyze(df)
