@@ -1,3 +1,4 @@
+from re import T
 from typing import List, Optional
 import numpy as np 
 import pandas as pd 
@@ -68,5 +69,12 @@ class DataPrep:
     def __call__(self):
         self.__sequential_construct__()
 
-    def get_df_report(self):
-        eda_report(self.df)
+    def processed_export(self):
+        assert isinstance(self.df, pd.DataFrame), "DataFrame needs to exist to export it"
+        self.df.to_csv("{}-processed.csv".format(self.ds_path.replace("csv", "")))
+
+        
+    def get_df_report(self, file_name:str="reports/report.html"):
+        if file_name:
+            file_name="reports/{}_report.html".format(file_name)
+        eda_report(self.df, file_name)
