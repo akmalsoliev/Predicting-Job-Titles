@@ -20,14 +20,14 @@ class DataPrep:
 
     def __sequential_construct__(self, remove_cols:List[str]=["Job Title"]):
         assert isinstance(self.df, pd.DataFrame), "`self.df` needs to be a DataFrame!"
-        "Usually nan column is named `Unnamed`"
+        # Usually nan column is named `Unnamed`
         drop_cols = [col for col in self.df.columns if "Unnamed" in col]
         self.df.drop(columns=drop_cols, inplace=True)
 
-        """Removing Cols
-        Removing "Job Title" too many unique values present 
-        in the column, possible effect on the outcome 
-        is very low."""
+        # Removing Cols
+        # Removing Job Title too many unique values present 
+        # in the column, possible effect on the outcome 
+        # is very low.
         self.df.drop(columns=remove_cols, inplace=True)
 
         '''There are values named "vide", they'll be replaced with "missing"'''
@@ -71,7 +71,7 @@ class DataPrep:
 
     def processed_export(self):
         assert isinstance(self.df, pd.DataFrame), "DataFrame needs to exist to export it"
-        self.df.to_csv("{}-processed.csv".format(self.ds_path.replace("csv", "")))
+        self.df.to_csv("{}-processed.csv".format(self.ds_path.replace(".csv", "")), index=False)
 
         
     def get_df_report(self, file_name:str="reports/report.html"):
