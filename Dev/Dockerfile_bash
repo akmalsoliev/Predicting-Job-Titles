@@ -1,0 +1,5 @@
+FROM asoliev/deep-learning:dev
+ARG LOC=../setup/requirements2.txt
+COPY requirements.txt $LOC
+RUN python3 -m pip install -r $LOC
+CMD ["/bin/bash"]
