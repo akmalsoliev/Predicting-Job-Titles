@@ -6,7 +6,7 @@
 ### Build commands
 Build from project directory (parent directory), fixes a lot of issues with not being able to access `requirements.txt`
 
-`docker build -t ${project_name}:dev -f Dev/Dockerfile_bash`
+`docker build -t ${project_name}:dev -f Dev/Dockerfile_bash .` 
 
 `docker run --rm -it -v "$(pwd)":/workdir ${project_name}:dev`
 
@@ -18,6 +18,6 @@ Build from project directory (parent directory), fixes a lot of issues with not 
 
 Build from project directory (parent directory), fixes a lot of issues with not being able to access `requirements.txt`
 
-`docker build -t ${project_name}:jupyter -f Dev/Dockerfile_jupyter`
+`docker build -t ${project_name}:jupyter -f Dev/Dockerfile_jupyter .`
 
 `docker run --rm -d --network host -v "$(pwd)":/workdir ${project_name}:jupyter`
