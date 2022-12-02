@@ -2,3 +2,5 @@ docker-compose.yaml
 *.pyc
 *.swp
 *.whl
+*.idea
+*.vscode
