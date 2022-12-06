@@ -8,7 +8,7 @@ Build from project directory (parent directory), fixes a lot of issues with not 
 
 `docker build -t ${project_name}:dev -f Dev/Dockerfile_bash .` 
 
-`docker run --rm -it -v "$(pwd)":/workdir ${project_name}:dev`
+`docker run --rm -it -v "$(pwd)":/workdir -p 2222:22 ${project_name}:dev`
 
 ## `Dockerfile_jupyter`
 

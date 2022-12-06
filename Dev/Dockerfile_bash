@@ -1,4 +1,5 @@
 FROM asoliev/deep-learning:dev
+ENTRYPOINT service ssh restart && bash
 ARG LOC=../setup/requirements2.txt
 COPY requirements.txt $LOC
 RUN python3 -m pip install -r $LOC
