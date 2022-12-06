@@ -1,4 +1,3 @@
-from re import T
 from typing import List, Optional
 import numpy as np 
 import pandas as pd 
@@ -20,28 +19,28 @@ class DataPrep:
 
     def __sequential_construct__(self, remove_cols:List[str]=["Job Title"]):
         assert isinstance(self.df, pd.DataFrame), "`self.df` needs to be a DataFrame!"
-        # Usually nan column is named `Unnamed`
+        #Usually nan column is named `Unnamed`
         drop_cols = [col for col in self.df.columns if "Unnamed" in col]
         self.df.drop(columns=drop_cols, inplace=True)
 
-        # Removing Cols
-        # Removing Job Title too many unique values present 
-        # in the column, possible effect on the outcome 
-        # is very low.
+        #Removing Cols
+        #Removing Job Title too many unique values present 
+        #in the column, possible effect on the outcome 
+        #is very low.
         self.df.drop(columns=remove_cols, inplace=True)
 
-        '''There are values named "vide", they'll be replaced with "missing"'''
+        #There are values named "vide", they'll be replaced with "missing"
         self.df.replace("vide", "missing", inplace=True)
 
         
-        "Fill Missing" 
+        #Fill Missing
         fill_col:pd.Index = self.df.select_dtypes(include=[object]).columns
         self.df.loc(axis=1)[fill_col] = self.df.loc(axis=1)[fill_col].fillna("missing")
 
-        "Drop NA" 
+        #Drop NA
         self.df = self.df.dropna()
 
-        "OHE Cols"
+        #OHE Cols
         def multi_col_ohe(df:pd.DataFrame, col:str, sep:str="|") -> pd.DataFrame:
             ohe_key =  OneHotEncode(df, col)
             ohe_key.text_split(sep=sep)

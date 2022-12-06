@@ -2,6 +2,7 @@ from typing import Callable, Union
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from numpy._typing import NDArray
 
 from ..processing import Scaler
@@ -31,7 +32,6 @@ class KFold:
             raise TypeError("Miss-match in data and target type.")
 
         split_data = np.array_split(data.to_numpy(), self.n_folds)
-        print(split_data[0])
         split_array: NDArray = np.array(split_data)
         metrics_list: list[float] = []
 
@@ -39,10 +39,8 @@ class KFold:
             train_index = [index for index in range(self.n_folds) if index != fold]
             train_ds: NDArray = np.vstack(split_array[train_index])
             test_ds: NDArray = split_array[fold]
-            print("Hello World!")
             
             (train_data, train_labels) = self.__data_label_split__(train_ds)
-            print(type(test_ds))
             (test_data, test_labels) = self.__data_label_split__(test_ds) 
 
             # This is an extremely lazy of implementing scaling, just applying scaling 
@@ -54,6 +52,12 @@ class KFold:
 
             self.model.fit(train_data, train_labels, epochs=epochs, **kwargs)
 
-            metrics_list.append(self.model.evaluate(test_data, test_labels))
+            plt.plot(np.arange(len(test_labels)), test_labels, label="test")
+            plt.plot(np.arange(len(test_labels)), self.model.predict(test_data), label="prediction")
+            plt.legend()
+            plt.show()
+
+            model_mse, model_mae = self.model.evaluate(test_data, test_labels)
+            metrics_list.append(model_mse)
         
         return metrics_list
