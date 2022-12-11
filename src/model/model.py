@@ -3,7 +3,6 @@ from tensorflow import keras
 from keras import layers
 
 def model():
-    tf.compat.v1.disable_eager_execution()
     activation_relu = tf.keras.activations.relu
     activation_out = tf.keras.activations.linear
 

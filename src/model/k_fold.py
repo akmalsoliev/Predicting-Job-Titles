@@ -57,7 +57,7 @@ class KFold:
             plt.legend()
             plt.show()
 
-            model_mse, model_mae = self.model.evaluate(test_data, test_labels)
-            metrics_list.append(model_mse)
+            model_mse, model_metric = self.model.evaluate(test_data, test_labels)
+            metrics_list.append(model_metric)
         
         return metrics_list
